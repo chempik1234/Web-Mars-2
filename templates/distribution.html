@@ -2,6 +2,6 @@
 {% block content %}
     <h2>Размещение по каютам</h2>
     {% for item in people %}
-        <div>Каюта №{{loop.index}} {{item}} {% if loop.first %} - капитан{% endif %}</div>
+        <div>{{item}} - Каюта №{{loop.index}} {% if loop.first %} - капитан{% endif %}</div>
     {% endfor %}
 {% endblock %}
