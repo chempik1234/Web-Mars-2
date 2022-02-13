@@ -66,13 +66,13 @@ def form_sample():
                 cat_file.write(readd[: -1] + ',\n' + json.dumps({'name': request.form['name'],
                                                                           'surname': request.form['surname'],
                                                                           'file': request.form['name'],
-                                                                          'professions': sorted(professions),
+                                                                          'professions': professions,
                                                                           'id': id}, ensure_ascii=False) + ']')
             else:
                 cat_file.write('[' + json.dumps({'name': request.form['name'],
                                                                           'surname': request.form['surname'],
                                                                           'file': request.form['name'],
-                                                                          'professions': sorted(professions),
+                                                                          'professions': professions,
                                                                           'id': id}, ensure_ascii=False) + ']')
         if 'file' in request.files.keys():
             f = request.files['file']
@@ -178,15 +178,9 @@ def random_member():
         data = json.loads(readd)
         id = randint(1, len(data))
     style = url_for('static', filename='/styles/style3.css')
-    src = url_for('static', filename=f'/img/avatars/img{id}.png')
-    if not os.path.isfile(PATH + f'\\static\\img\\avatars\\img{id}.png'):
-        src = url_for('static', filename=f'/img/MARS-2-7.png')
     return render_template('random_user.html', style=style,
                            title='Случайная страница',
-                           surname=data[id - 1]['surname'],
-                           name=data[id - 1]['surname'],
-                           src=src,
-                           professions=', '.join(data[id - 1]['professions']))
+                           params=data, id=id)
 
 
 if __name__ == '__main__':
