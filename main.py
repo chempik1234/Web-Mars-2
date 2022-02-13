@@ -4,6 +4,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
 from random import randint
 import os
+import json
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 levels = {}
@@ -49,12 +50,36 @@ def form_sample():
         return render_template('form_login.html', style=url_style)
     elif request.method == 'POST':
         redirect('/answer')
+        PATH = os.path.abspath(os.getcwd())
         all_profs = ['Инженер-исследователь', 'Инженер-строитель',
                     'Пилот', 'Метеоролог', 'Инженер по жизнеобеспечению',
                     'Инженер по радиационной защите', 'Врач',
                     'Экзобиолог']
-        professions = '\n'.join([all_profs[i - 1] for i in range(1, 9) if
-                                 'profession' + str(i) in list(request.form)])
+        professions = [all_profs[i - 1] for i in range(1, 9) if
+                       'profession' + str(i) in list(request.form)]
+        with open(PATH + '\\templates\\accounts.json', 'r') as cat_file:
+            readd = cat_file.read()
+            data = json.loads(readd)
+            id = len(data)
+        with open(PATH + '\\templates\\accounts.json', 'w') as cat_file:
+            if len(readd) > 2:
+                cat_file.write(readd[: -1] + ',\n' + json.dumps({'name': request.form['name'],
+                                                                          'surname': request.form['surname'],
+                                                                          'file': request.form['name'],
+                                                                          'professions': sorted(professions),
+                                                                          'id': id}, ensure_ascii=False) + ']')
+            else:
+                cat_file.write('[' + json.dumps({'name': request.form['name'],
+                                                                          'surname': request.form['surname'],
+                                                                          'file': request.form['name'],
+                                                                          'professions': sorted(professions),
+                                                                          'id': id}, ensure_ascii=False) + ']')
+        if 'file' in request.files.keys():
+            f = request.files['file']
+            if f.filename:
+                path = PATH + f'\\static\\img\\avatars\\img{id + 1}.png'
+                f.save(path)
+        professions = '\n'.join(professions)
         if 'accept' in request.form:
             acc = "True"
         else:
@@ -133,7 +158,6 @@ def galery():
     PATH = os.path.abspath(os.getcwd()) + '\\static\\img\\galery\\'
     url_style = url_for('static', filename='styles/style3.css')
     photos = [url_for('static', filename='img/galery/' + f) for f in os.listdir(PATH) if os.path.isfile(os.path.join(PATH, f))]
-    print(photos)
     if request.method == 'GET':
         return render_template('carousel_with_load.html', style=url_style,
                                photos=photos)
@@ -144,6 +168,25 @@ def galery():
             os.remove(path)
         f.save(path)
         return redirect('/galery')
+
+
+@app.route('/member')
+def random_member():
+    PATH = os.path.abspath(os.getcwd())
+    with open(PATH + '\\templates\\accounts.json', 'r') as cat_file:
+        readd = cat_file.read()
+        data = json.loads(readd)
+        id = randint(1, len(data))
+    style = url_for('static', filename='/styles/style3.css')
+    src = url_for('static', filename=f'/img/avatars/img{id}.png')
+    if not os.path.isfile(PATH + f'\\static\\img\\avatars\\img{id}.png'):
+        src = url_for('static', filename=f'/img/MARS-2-7.png')
+    return render_template('random_user.html', style=style,
+                           title='Случайная страница',
+                           surname=data[id - 1]['surname'],
+                           name=data[id - 1]['surname'],
+                           src=src,
+                           professions=', '.join(data[id - 1]['professions']))
 
 
 if __name__ == '__main__':
