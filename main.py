@@ -42,33 +42,42 @@ def form_sample():
     if request.method == 'GET':
         return render_template('form_login.html', style=url_style)
     elif request.method == 'POST':
-        return answer(request.form)
+        redirect('/answer')
+        all_profs = ['Инженер-исследователь', 'Инженер-строитель',
+                    'Пилот', 'Метеоролог', 'Инженер по жизнеобеспечению',
+                    'Инженер по радиационной защите', 'Врач',
+                    'Экзобиолог']
+        professions = '\n'.join([all_profs[i - 1] for i in range(1, 9) if
+                                 'profession' + str(i) in list(request.form)])
+        if 'accept' in request.form:
+            acc = "True"
+        else:
+            acc = "False"
+        return redirect(url_for('answer', surname=request.form['surname'],
+                                name=request.form['name'],
+                                education=request.form['education'],
+                                professions=professions,
+                                sex=request.form['sex'],
+                                reson=request.form['reason'],
+                                accept=acc,
+                                style=url_style))
 
 
 @app.route('/answer')
 @app.route('/auto_answer')
-def answer(form=None):
-    if not form:
+def answer():
+    if not request.args.get('surname'):
         return 'MUST BE REDIRECTED FROM THE LOGIN FORM'
+    #form = form[20: -2]
     url_style = url_for('static', filename='styles/style3.css')
-    all_profs = ['Инженер-исследователь', 'Инженер-строитель',
-                 'Пилот', 'Метеоролог', 'Инженер по жизнеобеспечению',
-                 'Инженер по радиационной защите', 'Врач',
-                 'Экзобиолог']
-    professions = [all_profs[i - 1] for i in range(1, 9) if
-                   'profession' + str(i) in list(form)]
-    if form['accept']:
-        acc = "True"
-    else:
-        acc = "False"
     return render_template('auto_answer.html', title="Анкета",
-                           surname=form['surname'],
-                           name=form['name'],
-                           education=form['education'],
-                           professions=professions,
-                           sex=form['sex'],
-                           reson=form['reason'],
-                           accept=acc,
+                           surname=request.args.get('surname'),
+                           name=request.args.get('name'),
+                           education=request.args.get('education'),
+                           professions=request.args.get('professions').split('\n'),
+                           sex=request.args.get('sex'),
+                           reson=request.args.get('reason'),
+                           accept=request.args.get('accept'),
                            style=url_style)
 
 
