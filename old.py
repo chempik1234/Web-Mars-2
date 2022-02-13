@@ -412,9 +412,9 @@ def load_photo():
 @app.route('/carousel')
 def carousel():
     url_style = url_for('static', filename='styles/style3.css')
-    lst = [url_for('static', filename='img/carousel1.jpg'),
-           url_for('static', filename='img/carousel2.jpg'),
-           url_for('static', filename='img/carousel3.jpg')]
+    lst = [url_for('static', filename='img/galery/carousel1.jpg'),
+           url_for('static', filename='img/galery/carousel2.jpg'),
+           url_for('static', filename='img/galery/carousel3.jpg')]
     return '''<!doctype html>
                     <html lang="en">
                       <head>

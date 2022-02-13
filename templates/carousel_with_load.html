@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Пейзажи марса</h1>
+    <div id="carouselExampleControls" class="carousel" data-slide="carousel">
+        <div class="carousel-inner">
+            {% for item in photos %}
+                <div class="carousel-item{% if loop.first %} active{% endif %}">
+                    <img class="d-block w-100" src="{{item}}" alt="slide {{loop.index}}">
+                </div>
+            {% endfor %}
+        </div>
+        <div>
+            <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    </div>
+    <div>
+        <form class="login_form" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="photo">Добавить картинку</label>
+                <input type="file" class="form-control-file" id="photo" name="file">
+            </div>
+            <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+    </div>
+{% endblock %}

@@ -3,6 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
 from random import randint
+import os
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 levels = {}
@@ -125,6 +126,24 @@ def table(sex, age):
     else:
         image = url_for('static', filename="img/decoration_adult.png")
     return render_template('table.html', style=url_style, color=color, image=image)
+
+
+@app.route('/galery', methods=['GET', 'POST'])
+def galery():
+    PATH = os.path.abspath(os.getcwd()) + '\\static\\img\\galery\\'
+    url_style = url_for('static', filename='styles/style3.css')
+    photos = [url_for('static', filename='img/galery/' + f) for f in os.listdir(PATH) if os.path.isfile(os.path.join(PATH, f))]
+    print(photos)
+    if request.method == 'GET':
+        return render_template('carousel_with_load.html', style=url_style,
+                               photos=photos)
+    elif request.method == 'POST':
+        f = request.files['file']
+        path = PATH + f'img{len(photos)}.png'
+        if os.path.exists(path):
+            os.remove(path)
+        f.save(path)
+        return redirect('/galery')
 
 
 if __name__ == '__main__':
