@@ -2,6 +2,7 @@ from flask import Flask, render_template, url_for, redirect, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
+from random import randint
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 levels = {}
@@ -109,6 +110,21 @@ def distribution():
     if lst is None:
         return 'NO PEOPLE'
     return render_template('distribution.html', style=url_style, people=lst.split(','))
+
+
+@app.route('/table/<string:sex>/<int:age>')
+def table(sex, age):
+    url_style = url_for('static', filename='styles/style3.css')
+    hex = '0123456789ABCDEF'
+    if sex == "female":
+        color = '#' + hex[randint(7, 15)] * 2 + hex[randint(3, 6)] * 2 + '00'
+    else:
+        color = '#' + '00' + hex[randint(4, 6)] * 2 + hex[randint(7, 15)] * 2
+    if age < 21:
+        image = url_for('static', filename="img/decoration_kid.png")
+    else:
+        image = url_for('static', filename="img/decoration_adult.png")
+    return render_template('table.html', style=url_style, color=color, image=image)
 
 
 if __name__ == '__main__':
