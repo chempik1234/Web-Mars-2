@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+  <div>Фамилия: {{surname}}</div>
+  <div>Имя: {{name}}</div>
+  <div>Образование: {{education}}</div>
+  <div>Профессии:</div>
+  {% for item in professions %}
+    <div>{{item}}</div>
+  {% endfor %}
+  <div>Пол: {{sex}}</div>
+  <div>Мотивация: {{reason}}</div>
+  <div>Готовы остаться на Марсе? {{accept}}</div>
+{% endblock %}

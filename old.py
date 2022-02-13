@@ -323,7 +323,7 @@ def form_sample():
         educations = ['Дошкольное', 'Начальное', 'Основное общее', 'Среднее (полное)',
                       'Среднее профессиональное', 'Высшее профессиональное', 'Бакалавриат',
                       'Магистратура', 'Аспирантура', 'Докторантура']
-        professions = ['profession' + str(i) for i in range(1, 9) if 'profession' + str(i) in list(request.form)]
+        professions = [request.form['profession' + str(i)] for i in range(1, 9) if 'profession' + str(i) in list(request.form)]
         sex = request.form['sex']
         motivation = request.form['reason']
         file = request.form['file']

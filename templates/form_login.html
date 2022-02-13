@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Анкета претендента</h1>
+  <h2>на участие в миссии</h2>
+  <div>
+    <form class="login_form" method="post">
+      <div class="form-group">
+        <input type="text" class="form-control" id="surname" placeholder="Введите фамилию" name="surname">
+        <input type="text" class="form-control" id="name" placeholder="Введите имя" name="name">
+      </div>
+      <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Введите адрес почты" name="email">
+      <div class="form-group">
+        <label for="educationSelect">Какое у Вас образование?</label>
+        <select class="form-control" id="educationSelect" name="education">
+          <option>Дошкольное</option>
+          <option>Начальное</option>
+          <option>Основное общее</option>
+          <option>Среднее (полное)</option>
+          <option>Среднее профессиональное</option>
+          <option>Высшее профессиональное</option>
+          <option>Бакалавриат</option>
+          <option>Магистратура</option>
+          <option>Аспирантура</option>
+          <option>Докторантура</option>
+        </select>
+      </div>
+      <div class="form-group form-check">
+        <label for="profession">Какие у Вас есть професии?</label>
+        <div><input type="checkbox" class="form-check-input" id="profession1" name="profession1"><label class="form-check-label" for="profession1">Инженер-исследователь</label></div>
+        <div><input type="checkbox" class="form-check-input" id="profession2" name="profession2"><label class="form-check-label" for="profession2">Инженер-строитель</label></div>
+        <div><input type="checkbox" class="form-check-input" id="profession3" name="profession3"><label class="form-check-label" for="profession3">Пилот</label></div>
+        <div><input type="checkbox" class="form-check-input" id="profession4" name="profession4"><label class="form-check-label" for="profession4">Метеоролог</label></div>
+        <div><input type="checkbox" class="form-check-input" id="profession5" name="profession5"><label class="form-check-label" for="profession5">Инженер по жизнеобеспечению</label></div>
+        <div><input type="checkbox" class="form-check-input" id="profession6" name="profession6"><label class="form-check-label" for="profession6">Инженер по радиационной защите</label></div>
+        <div><input type="checkbox" class="form-check-input" id="profession7" name="profession7"><label class="form-check-label" for="profession7">Врач</label></div>
+        <div><input type="checkbox" class="form-check-input" id="profession8" name="profession8"><label class="form-check-label" for="profession8">Экзобиолог</label></div>
+      </div>
+      <div class="form-group">
+        <label for="form-check">Укажите пол</label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="sex" id="male" value="male" checked>
+          <label class="form-check-label" for="male">Мужской
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="sex" id="female" value="female">
+          <label class="form-check-label" for="female">Женский
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="about">Почему вы хотите принять участие в миссии?</label>
+        <textarea class="form-control" id="reason" rows="3" placeholder="В КОДЕ ЭЛЕМЕНТА УБЕРИТЕ ПЕРЕВОД СТРОКИ В CSS И ВСЕ ЗАРАБОТАЕТ" name="reason"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="photo">Приложите фотографию</label>
+        <input type="file" class="form-control-file" id="photo" name="file">
+      </div>
+      <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="acceptRules" name="accept">
+        <label class="form-check-label" for="acceptRules">Готовы остаться на Марсе?</label>
+      </div>
+      <button type="submit" class="btn btn-primary">Записаться</button>
+    </form>
+  </div>
+{% endblock %}
