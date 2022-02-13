@@ -1,15 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-    <script type="text/javascript" params="{{params}}">
-        function random(a) {
-            return Math.floor(Math.random() * a);
-        }
-        var a = random(5);
-        var whole = document.currentScript.getAttribute('params');
-        var jsona = JSON.parse(whole);
-        var user = jsona[0];
-        document.write ("<h2>" + user.name + "</h2>");
-    </script>
     <h2>{{params[id - 1]["surname"]}} {{params[id - 1]["name"]}}</h2>
     <img src="/static/img/avatars/img{{id}}.png" alt="no image">
     <div>
