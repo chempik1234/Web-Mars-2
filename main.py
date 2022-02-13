@@ -1,5 +1,9 @@
 from flask import Flask, render_template, url_for, redirect, request
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import DataRequired
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 levels = {}
 
 
@@ -80,6 +84,22 @@ def answer():
                            accept=request.args.get('accept'),
                            style=url_style)
 
+
+class LoginForm(FlaskForm):
+    id = StringField('Id астронавта', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    cap_id = StringField('Id капитана', validators=[DataRequired()])
+    cap_password = PasswordField('Пароль капитана', validators=[DataRequired()])
+    submit = SubmitField('Войти')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    url_style = url_for('static', filename='styles/style3.css')
+    if form.validate_on_submit():
+        return redirect('/success')
+    return render_template('login.html', style=url_style, title='Авторизация', form=form)
 
 
 if __name__ == '__main__':
