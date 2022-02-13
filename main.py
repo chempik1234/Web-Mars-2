@@ -26,6 +26,8 @@ def list_prof(list):
                    'Пилот', 'Метеоролог', 'Инженер по жизнеобеспечению',
                    'Инженер по радиационной защите', 'Врач',
                    'Экзобиолог']
+    if list != 'ol' and list != 'ul':
+        return 'Wrong parameter: ' + str(list) + '. It must be "ol" or "ul"'
     return render_template('list_prof.html', title="Список профессий",
                            list=list, professions=professions)
 
