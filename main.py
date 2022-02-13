@@ -102,5 +102,14 @@ def login():
     return render_template('login.html', style=url_style, title='Авторизация', form=form)
 
 
+@app.route('/distribution')
+def distribution():
+    url_style = url_for('static', filename='styles/style3.css')
+    lst = request.args.get('people')
+    if lst is None:
+        return 'NO PEOPLE'
+    return render_template('distribution.html', style=url_style, people=lst.split(','))
+
+
 if __name__ == '__main__':
     app.run(port=8080, host='127.0.0.1')
