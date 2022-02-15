@@ -5,6 +5,8 @@ from wtforms.validators import DataRequired
 from random import randint
 import os
 import json
+from data import db_session
+from data.__all_models import *
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 levels = {}
@@ -50,7 +52,6 @@ def form_sample():
         return render_template('form_login.html', style=url_style)
     elif request.method == 'POST':
         redirect('/answer')
-        PATH = os.path.abspath(os.getcwd())
         all_profs = ['Инженер-исследователь', 'Инженер-строитель',
                     'Пилот', 'Метеоролог', 'Инженер по жизнеобеспечению',
                     'Инженер по радиационной защите', 'Врач',
@@ -155,15 +156,16 @@ def table(sex, age):
 
 @app.route('/galery', methods=['GET', 'POST'])
 def galery():
-    PATH = os.path.abspath(os.getcwd()) + '\\static\\img\\galery\\'
+    global PATH
+    PATH2 = PATH + '\\static\\img\\galery\\'
     url_style = url_for('static', filename='styles/style3.css')
-    photos = [url_for('static', filename='img/galery/' + f) for f in os.listdir(PATH) if os.path.isfile(os.path.join(PATH, f))]
+    photos = [url_for('static', filename='img/galery/' + f) for f in os.listdir(PATH2) if os.path.isfile(os.path.join(PATH2, f))]
     if request.method == 'GET':
         return render_template('carousel_with_load.html', style=url_style,
                                photos=photos)
     elif request.method == 'POST':
         f = request.files['file']
-        path = PATH + f'img{len(photos)}.png'
+        path = PATH2 + f'img{len(photos)}.png'
         if os.path.exists(path):
             os.remove(path)
         f.save(path)
@@ -172,7 +174,6 @@ def galery():
 
 @app.route('/member')
 def random_member():
-    PATH = os.path.abspath(os.getcwd())
     with open(PATH + '\\templates\\accounts.json', 'r') as cat_file:
         readd = cat_file.read()
         data = json.loads(readd)
@@ -183,5 +184,77 @@ def random_member():
                            params=data, id=id)
 
 
+@app.route('/works')
+@app.route('/')
+def works_list():
+    d = []
+    headers = ['Title of activity', 'Team leader',
+               'Duration', 'List of collaborators',
+               'Is finished']
+    for job in db_sess.query(Jobs).all():
+        d.append({i: None for i in headers})
+        d[-1][headers[0]] = job.job
+        cap = db_sess.query(User).filter(User.id == job.team_leader).first()
+        d[-1][headers[1]] = cap.surname + ' ' + cap.name
+        d[-1][headers[2]] = str(job.work_size) + ' hours'
+        d[-1][headers[3]] = job.collaborators
+        if job.is_finished:
+            d[-1][headers[4]] = 'Is finished'
+        else:
+            d[-1][headers[4]] = 'Is not finished'
+    style = url_for('static', filename='/styles/style3.css')
+    return render_template('works_list.html', style=style, title='Журнал работ',
+                           dictionary=d, keys=headers)
+
+
+def db_main():
+    people_amount = 6
+    ##### ADD PERSONAL
+    surnames = ["Scott", "Jackson", "Kamado", "Carry", "Brown", "Freeman"]
+    names = ["Riddley", "Michael", "Manfred", "Ben", "John", "Albert"]
+    ages = [21, 23, 34, 29, 38, 25]
+    positions = ["captain", "private", "corporal", "private first class", "staff-sergeant", "private"]
+    specialities = ["research engineer", "research engineer", "life support engineer",
+                    "drone pilot", "medic", "builder"]
+    addresses = ["module_1", "module_1", "module_2", "module_3", "module_2", "module_3"]
+    emails = ["scott_chief@mars.org", "michael_singer@mars.org", "foreigner_guy@mars.org",
+              "arma_III@mars.org", "stereotypical_name@mars.org", "science4life@mars.org"]
+    for i in range(people_amount):
+        user = User()
+        user.surname = surnames[i]
+        user.name = names[i]
+        user.age = ages[i]
+        user.position = positions[i]
+        user.speciality = specialities[i]
+        user.address = addresses[i]
+        user.email = emails[i]
+        db_sess.add(user)
+    ##### ADD JOB
+    leaders = [1, 3, 4]
+    jobs = ["Deployment of residential modules 1 and 2",
+            "Exploration of mineral resources",
+            "Development of a management system"]
+    work_sizes = [15, 15, 25]
+    collaborators_lists = ["1, 3", "4, 3", "5"]
+    finished_list = [False, False, False]
+    jobs_amount = 3
+    for i in range(jobs_amount):
+        job = Jobs()
+        job.team_leader = leaders[i]
+        job.job = jobs[i]
+        job.work_size = work_sizes[i]
+        job.collaborators = collaborators_lists[i]
+        #job.data is default (now)
+        job.is_finished = finished_list[i]
+        db_sess.add(job)
+    db_sess.commit()
+
+
 if __name__ == '__main__':
+    PATH = os.path.abspath(os.getcwd())
+    if os.path.isfile(PATH + '\\db\\mars_explorer.db'):
+        os.remove(PATH + '\\db\\mars_explorer.db')
+    db_session.global_init("db/mars_explorer.db")
+    db_sess = db_session.create_session()
+    db_main()
     app.run(port=8080, host='127.0.0.1')

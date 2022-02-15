@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Works log</h2>
+    {% for item in dictionary %}
+        <div><h3>Action # {{loop.index}}</h3>
+        <table>
+            <tr>
+                {% for key in keys %}
+                    <th style="background-color:gray;">{{key}}</th>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% for key in keys %}
+                    <td style="background-color:aliceblue;">{{item[key]}}</td>
+                {% endfor %}
+            </tr>
+        </table></div>
+    {% endfor %}
+{% endblock %}
