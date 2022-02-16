@@ -1,7 +1,7 @@
 from flask import Flask, render_template, url_for, redirect, request
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField
+from wtforms.validators import DataRequired, EqualTo
 from random import randint
 import os
 import json
@@ -127,7 +127,9 @@ def login():
     url_style = url_for('static', filename='styles/style3.css')
     if form.validate_on_submit():
         return redirect('/success')
-    return render_template('login.html', style=url_style, title='Авторизация', form=form)
+    return render_template('login.html', style=url_style,
+                           header='<h2><span class="i"></span>Аварийный доступ</h2>',
+                           title='Авторизация', form=form)
 
 
 @app.route('/distribution')
@@ -207,6 +209,43 @@ def works_list():
                            dictionary=d, keys=headers)
 
 
+class DBLoginForm(FlaskForm):
+    surname = StringField("Surname", validators=[DataRequired()])
+    name = StringField("Name", validators=[DataRequired()])
+    age = IntegerField("Age", validators=[DataRequired()])
+    position = StringField("Position", validators=[DataRequired()])
+    speciality = StringField("Speciality", validators=[DataRequired()])
+    address = StringField("Address", validators=[DataRequired()])
+    email = StringField("Login / Email", validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    repeat_password = PasswordField('Repeat password',
+                                    validators=[DataRequired(),
+                                                EqualTo('password', message='Passwords must match')])
+    submit = SubmitField('Войти')
+
+
+@app.route('/register', methods=['GET','POST'])
+def register():
+    form = DBLoginForm()
+    url_style = url_for('static', filename='styles/style3.css')
+    if form.validate_on_submit():
+        user = User()
+        user.surname = form.surname.data
+        user.name = form.name.data
+        user.age = form.age.data
+        user.position = form.position.data
+        user.speciality = form.speciality.data
+        user.address = form.address.data
+        user.email = form.email.data
+        user.hashed_password = form.password.data
+        db_sess.add(user)
+        db_sess.commit()
+        return redirect('/success')
+    return render_template('login.html', style=url_style,
+                           header='<h2>Register form</h2>',
+                           title='Авторизация', form=form)
+
+
 def db_main():
     people_amount = 6
     ##### ADD PERSONAL
@@ -252,9 +291,9 @@ def db_main():
 
 if __name__ == '__main__':
     PATH = os.path.abspath(os.getcwd())
-    if os.path.isfile(PATH + '\\db\\mars_explorer.db'):
-        os.remove(PATH + '\\db\\mars_explorer.db')
+    needtofill = os.path.isfile(PATH + '\\db\\mars_explorer.db')
     db_session.global_init("db/mars_explorer.db")
     db_sess = db_session.create_session()
-    db_main()
+    if not needtofill:
+        db_main()
     app.run(port=8080, host='127.0.0.1')
