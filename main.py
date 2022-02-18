@@ -286,6 +286,20 @@ def db_main():
         #job.data is default (now)
         job.is_finished = finished_list[i]
         db_sess.add(job)
+    ##### ADD DEPARTMENTS
+    titles = ["Department_1", "Department_2", "Deppppp_3", "dep4"]
+    chiefs = [1, 1, 5, 5]
+    members = ["1, 2, 3", "1, 4, 5", "4, 5", "2, 3, 5"]
+    emails = ["dep1@mars.org", "dep2@mars.org", "depIII@mars.org", "dep4mars.org"]
+    dep_amount = 4
+    dep = None
+    for i in range(dep_amount):
+        dep = Department()
+        dep.title = titles[i]
+        dep.chief = chiefs[i]
+        dep.members = members[i]
+        dep.email = emails[i]
+        db_sess.add(dep)
     db_sess.commit()
 
 

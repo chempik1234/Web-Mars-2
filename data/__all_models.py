@@ -1,5 +1,6 @@
 import datetime
 import sqlalchemy
+from sqlalchemy import ForeignKeyConstraint
 from .db_session import SqlAlchemyBase
 
 
@@ -33,3 +34,16 @@ class Jobs(SqlAlchemyBase):
     end_date = sqlalchemy.Column(sqlalchemy.String)
     address = sqlalchemy.Column(sqlalchemy.String)
     is_finished = sqlalchemy.Column(sqlalchemy.Boolean)
+
+
+class Department(SqlAlchemyBase):
+    __tablename__ = 'departments'
+
+    id = sqlalchemy.Column(sqlalchemy.Integer,
+                           primary_key=True, autoincrement=True)
+    title = sqlalchemy.Column(sqlalchemy.String)
+    chief = sqlalchemy.Column(sqlalchemy.Integer)
+    members = sqlalchemy.Column(sqlalchemy.String)
+    email = sqlalchemy.Column(sqlalchemy.String)
+    a, b = User.__tablename__, __tablename__
+    ForeignKeyConstraint([a, b], [a + '.id', b + '.id'])
