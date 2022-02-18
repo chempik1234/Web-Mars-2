@@ -46,4 +46,4 @@ class Department(SqlAlchemyBase):
     members = sqlalchemy.Column(sqlalchemy.String)
     email = sqlalchemy.Column(sqlalchemy.String)
     a, b = User.__tablename__, __tablename__
-    ForeignKeyConstraint([a, b], [a + '.id', b + '.id'])
+    ForeignKeyConstraint([a, b], [a + '.chief', b + '.id'])
