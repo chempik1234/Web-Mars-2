@@ -1,12 +1,13 @@
 from flask import Flask, render_template, url_for, redirect, request
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, EmailField
 from wtforms.validators import DataRequired, EqualTo
 from random import randint
 import os
 import json
 from data import db_session
 from data.__all_models import *
+from flask_login import LoginManager, login_user, login_manager
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 levels = {}
@@ -216,11 +217,19 @@ class DBLoginForm(FlaskForm):
     position = StringField("Position", validators=[DataRequired()])
     speciality = StringField("Speciality", validators=[DataRequired()])
     address = StringField("Address", validators=[DataRequired()])
-    email = StringField("Login / Email", validators=[DataRequired()])
+    email = EmailField("Login / Email", validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     repeat_password = PasswordField('Repeat password',
                                     validators=[DataRequired(),
                                                 EqualTo('password', message='Passwords must match')])
+    remember_me = BooleanField('Запомнить меня')
+    submit = SubmitField('Войти')
+
+
+class SignInForm(FlaskForm):
+    email = EmailField('Почта', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    remember_me = BooleanField('Запомнить меня')
     submit = SubmitField('Войти')
 
 
@@ -244,6 +253,27 @@ def register():
     return render_template('login.html', style=url_style,
                            header='<h2>Register form</h2>',
                            title='Авторизация', form=form)
+
+
+@app.route('/sign_in', methods=['GET', 'POST'])
+def sign_in():
+    form = SignInForm()
+    url_style = url_for('static', filename='styles/style3.css')
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=form.remember_me.data)
+            return redirect("/success")
+        return render_template('sign_in.html',
+                               message="Неправильный логин или пароль",
+                               form=form)
+    return render_template('sign_in.html', title='Авторизация', form=form, style=url_style)
+
+
+@app.route('/success')
+def success():
+    return redirect('/')
 
 
 def db_main():
@@ -311,3 +341,10 @@ if __name__ == '__main__':
     if not needtofill:
         db_main()
     app.run(port=8080, host='127.0.0.1')
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db_sess.query(User).get(user_id)
