@@ -7,7 +7,7 @@ import os
 import json
 from data import db_session
 from data.__all_models import *
-from flask_login import LoginManager, login_user
+from flask_login import LoginManager, login_user, logout_user, login_required
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
@@ -233,8 +233,6 @@ class DBJobLoginForm(FlaskForm):
     job = StringField("Job", validators=[DataRequired()])
     work_size = IntegerField("Work size (hours per day)", validators=[DataRequired()])
     collaborators = StringField("Collaborators ID's (divide with comma)", validators=[DataRequired()])
-    end_date = StringField("End date")
-    address = StringField("Address", validators=[DataRequired()])
     is_finished = BooleanField("Is finished?")
     submit = SubmitField('Отправить')
 
@@ -278,18 +276,16 @@ def register_job():
         job.job = form.job.data
         job.work_size = form.work_size.data
         job.collaborators = form.collaborators.data
-        job.end_date = form.end_date.data
-        job.address = form.address.data
         job.is_finished = form.is_finished.data
         db_sess.add(job)
         db_sess.commit()
         return redirect('/')
-    return render_template('login.html', style=url_style,
+    return render_template('job_add.html', style=url_style,
                            header='<h2>Job registering form</h2>',
                            title='Добавление работы', form=form)
 
 
-@app.route('/sign_in', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def sign_in():
     form = SignInForm()
     url_style = url_for('static', filename='styles/style3.css')
@@ -303,6 +299,13 @@ def sign_in():
                                message="Неправильный логин или пароль",
                                form=form)
     return render_template('sign_in.html', title='Авторизация', form=form, style=url_style)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
 
 
 @app.route('/success')
