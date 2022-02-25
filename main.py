@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, request
+from flask import Flask, render_template, url_for, redirect, request, abort
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, EmailField
 from wtforms.validators import DataRequired, EqualTo
@@ -7,7 +7,7 @@ import os
 import json
 from data import db_session
 from data.__all_models import *
-from flask_login import LoginManager, login_user, logout_user, login_required
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
@@ -207,6 +207,8 @@ def works_list():
             d[-1][headers[4]] = 'Is finished'
         else:
             d[-1][headers[4]] = 'Is not finished'
+        d[-1]["team_leader"] = job.team_leader
+        d[-1]["id"] = job.id
     style = url_for('static', filename='/styles/style3.css')
     return render_template('works_list.html', style=style, title='Журнал работ',
                            dictionary=d, keys=headers)
@@ -285,6 +287,68 @@ def register_job():
                            title='Добавление работы', form=form)
 
 
+@app.route('/edit_job/<int:id_>', methods=['GET','POST'])
+def edit_job(id_):
+    form = DBJobLoginForm()
+    url_style = url_for('static', filename='styles/style3.css')
+    if current_user.is_authenticated:
+        job = db_sess.query(Jobs).filter(Jobs.id == id_).first()
+        author = job.team_leader
+        if current_user.id != 1 and current_user.id != author:
+            abort(403)
+    else:
+        abort(403)
+    if request.method == "GET":
+        job = db_sess.query(Jobs).filter(Jobs.id == id_).first()
+        print(job)
+        if job:
+            form.job.data = job.job
+            form.team_leader.data = job.team_leader
+            form.work_size.data = job.work_size
+            form.collaborators.data = job.collaborators
+            form.is_finished.data = job.is_finished
+        else:
+            abort(403)
+    if form.validate_on_submit():
+        job = db_sess.query(Jobs).filter(Jobs.id == id_).first()
+        if job:
+            job.team_leader = form.team_leader.data
+            job.job = form.job.data
+            job.work_size = form.work_size.data
+            job.collaborators = form.collaborators.data
+            job.is_finished = form.is_finished.data
+            db_sess.add(job)
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('job_add.html', style=url_style,
+                           header='<h2>Job editing form</h2>',
+                           title='Изменение работы', form=form)
+
+
+@app.route('/delete_job/<int:id_>')
+def delete_job(id_):
+    url_style = url_for('static', filename='styles/style3.css')
+    if current_user.is_authenticated:
+        job = db_sess.query(Jobs).filter(Jobs.id == id_).first()
+        author = job.team_leader
+        if current_user.id != 1 and current_user.id != author:
+            abort(403)
+    else:
+        abort(403)
+    job = db_sess.query(Jobs).filter(Jobs.id == id_).first()
+    if job:
+        db_sess.delete(job)
+        db_sess.commit()
+        return redirect('/')
+    else:
+        abort(404)
+    return render_template('job_delete.html', style=url_style,
+                           header='<h2>Job deleting form</h2>',
+                           title='Удаление работы')
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def sign_in():
     form = SignInForm()
@@ -315,7 +379,7 @@ def success():
 
 def db_main():
     people_amount = 6
-    ##### ADD PERSONAL
+    # ADD PERSONAL
     surnames = ["Scott", "Jackson", "Kamado", "Carry", "Brown", "Freeman"]
     names = ["Riddley", "Michael", "Manfred", "Ben", "John", "Albert"]
     ages = [21, 23, 34, 29, 38, 25]
@@ -325,6 +389,7 @@ def db_main():
     addresses = ["module_1", "module_1", "module_2", "module_3", "module_2", "module_3"]
     emails = ["scott_chief@mars.org", "michael_singer@mars.org", "foreigner_guy@mars.org",
               "arma_III@mars.org", "stereotypical_name@mars.org", "science4life@mars.org"]
+    passwords = ['1', '2', '3', '4', '5', '6']
     for i in range(people_amount):
         user = User()
         user.surname = surnames[i]
@@ -334,8 +399,9 @@ def db_main():
         user.speciality = specialities[i]
         user.address = addresses[i]
         user.email = emails[i]
+        user.hashed_password = passwords[i]
         db_sess.add(user)
-    ##### ADD JOB
+    # ADD JOB
     leaders = [1, 3, 4]
     jobs = ["Deployment of residential modules 1 and 2",
             "Exploration of mineral resources",
