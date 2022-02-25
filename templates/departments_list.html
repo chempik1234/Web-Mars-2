@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-    <h2>Works log</h2>
+    <h2>Departments log</h2>
     <a class="btn btn-info" href="/works">Работы</a>
     {% if current_user.is_authenticated %}
         <a class="btn btn-info" href="/add_department">Добавить отделение</a>
     {% endif %}
     {% for item in dictionary %}
-        <div><h3>Action # {{loop.index}}</h3>
+        <div><h3>Department # {{loop.index}}</h3>
         <table>
             <tr>
                 {% for key in keys %}
