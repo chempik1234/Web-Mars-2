@@ -10,6 +10,8 @@ from data.__all_models import *
 from flask_login import LoginManager, login_user, login_manager
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+login_manager = LoginManager()
+login_manager.init_app(app)
 levels = {}
 
 
@@ -333,6 +335,11 @@ def db_main():
     db_sess.commit()
 
 
+@login_manager.user_loader
+def load_user(user_id):
+    return db_sess.query(User).get(user_id)
+
+
 if __name__ == '__main__':
     PATH = os.path.abspath(os.getcwd())
     needtofill = os.path.isfile(PATH + '\\db\\mars_explorer.db')
@@ -341,10 +348,3 @@ if __name__ == '__main__':
     if not needtofill:
         db_main()
     app.run(port=8080, host='127.0.0.1')
-    login_manager = LoginManager()
-    login_manager.init_app(app)
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return db_sess.query(User).get(user_id)
