@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+    <script type="text/javascript" header="{{header}}">
+        header = document.currentScript.getAttribute('header');
+        document.write(header);
+    </script>
+    <p>
+        <h2>Подождите, пожалуйста</h2>
+        <h3>отделение удаляется...</h3>
+    </p>
+{% endblock %}

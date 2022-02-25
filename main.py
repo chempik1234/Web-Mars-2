@@ -214,6 +214,25 @@ def works_list():
                            dictionary=d, keys=headers)
 
 
+@app.route('/departments')
+def departments_list():
+    d = []
+    headers = ['Title of department', 'Chief',
+               'Members', 'Department email']
+    for dep in db_sess.query(Department).all():
+        d.append({i: None for i in headers})
+        d[-1][headers[0]] = dep.title
+        cap = db_sess.query(User).filter(User.id == dep.chief).first()
+        d[-1][headers[1]] = cap.surname + ' ' + cap.name
+        d[-1][headers[2]] = dep.members
+        d[-1][headers[3]] = dep.email
+        d[-1]["chief"] = dep.chief
+        d[-1]["id"] = dep.id
+    style = url_for('static', filename='/styles/style3.css')
+    return render_template('departments_list.html', style=style, title='Журнал отделений',
+                           dictionary=d, keys=headers)
+
+
 class DBLoginForm(FlaskForm):
     surname = StringField("Surname", validators=[DataRequired()])
     name = StringField("Name", validators=[DataRequired()])
@@ -236,6 +255,14 @@ class DBJobLoginForm(FlaskForm):
     work_size = IntegerField("Work size (hours per day)", validators=[DataRequired()])
     collaborators = StringField("Collaborators ID's (divide with comma)", validators=[DataRequired()])
     is_finished = BooleanField("Is finished?")
+    submit = SubmitField('Отправить')
+
+
+class DBDepLoginForm(FlaskForm):
+    title = StringField("Title", validators=[DataRequired()])
+    chief = IntegerField("Chief", validators=[DataRequired()])
+    members = StringField("Members", validators=[DataRequired()])
+    email = EmailField("Email", validators=[DataRequired()])
     submit = SubmitField('Отправить')
 
 
@@ -266,6 +293,8 @@ def register():
     return render_template('login.html', style=url_style,
                            header='<h2>Register form</h2>',
                            title='Авторизация', form=form)
+
+# jobs
 
 
 @app.route('/add_job', methods=['GET','POST'])
@@ -300,7 +329,6 @@ def edit_job(id_):
         abort(403)
     if request.method == "GET":
         job = db_sess.query(Jobs).filter(Jobs.id == id_).first()
-        print(job)
         if job:
             form.job.data = job.job
             form.team_leader.data = job.team_leader
@@ -347,6 +375,85 @@ def delete_job(id_):
     return render_template('job_delete.html', style=url_style,
                            header='<h2>Job deleting form</h2>',
                            title='Удаление работы')
+
+# departments
+
+
+@app.route('/add_department', methods=['GET','POST'])
+def register_department():
+    form = DBDepLoginForm()
+    url_style = url_for('static', filename='styles/style3.css')
+    if form.validate_on_submit():
+        dep = Department()
+        dep.title = form.title.data
+        dep.chief = form.chief.data
+        dep.members = form.members.data
+        dep.email = form.email.data
+        db_sess.add(dep)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('/dep_add.html', style=url_style,
+                           header='<h2>Department registering form</h2>',
+                           title='Добавление отделения', form=form)
+
+
+@app.route('/edit_department/<int:id_>', methods=['GET','POST'])
+def edit_department(id_):
+    form = DBDepLoginForm()
+    url_style = url_for('static', filename='styles/style3.css')
+    if current_user.is_authenticated:
+        dep = db_sess.query(Department).filter(Department.id == id_).first()
+        author = dep.chief
+        if current_user.id != 1 and current_user.id != author:
+            abort(403)
+    else:
+        abort(403)
+    if request.method == "GET":
+        dep = db_sess.query(Department).filter(Department.id == id_).first()
+        if dep:
+            form.title.data = dep.title
+            form.chief.data = dep.chief
+            form.members.data = dep.members
+            form.email.data = dep.email
+        else:
+            abort(403)
+    if form.validate_on_submit():
+        dep = db_sess.query(Department).filter(Department.id == id_).first()
+        if dep:
+            dep.title = form.title.data
+            dep.chief = form.chief.data
+            dep.members = form.members.data
+            dep.email = form.email.data
+            db_sess.add(dep)
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('dep_add.html', style=url_style,
+                           header='<h2>Department editing form</h2>',
+                           title='Изменение отделения', form=form)
+
+
+@app.route('/delete_department/<int:id_>')
+def delete_department(id_):
+    url_style = url_for('static', filename='styles/style3.css')
+    if current_user.is_authenticated:
+        dep = db_sess.query(Department).filter(Department.id == id_).first()
+        author = dep.chief
+        if current_user.id != 1 and current_user.id != author:
+            abort(403)
+    else:
+        abort(403)
+    dep = db_sess.query(Department).filter(Department.id == id_).first()
+    if dep:
+        db_sess.delete(dep)
+        db_sess.commit()
+        return redirect('/')
+    else:
+        abort(404)
+    return render_template('dep_delete.html', style=url_style,
+                           header='<h2>Department deleting form</h2>',
+                           title='Удаление отделения')
 
 
 @app.route('/login', methods=['GET', 'POST'])

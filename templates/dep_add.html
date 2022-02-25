@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+    <script type="text/javascript" header="{{header}}">
+        header = document.currentScript.getAttribute('header');
+        document.write(header);
+    </script>
+    <form action="" method="post" novalidate xmlns="">
+        <div>
+            {{ form.csrf_token }}
+        </div>
+        <p>
+            {{ form.title.label }}<br>
+            {{ form.title(class="form-control", type="string") }}<br>
+            {% for error in form.title.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.chief.label }}<br>
+            {{ form.chief(class="form-control", type="integer") }}<br>
+            {% for error in form.chief.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.members.label }}<br>
+            {{ form.members(class="form-control", type="string") }}<br>
+            {% for error in form.members.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.email.label }}<br>
+            {{ form.email(class="form-control", type="email") }}<br>
+            {% for error in form.email.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    </form>
+{% endblock %}
