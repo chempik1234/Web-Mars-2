@@ -7,7 +7,7 @@ import os
 import json
 from data import db_session
 from data.__all_models import *
-from flask_login import LoginManager, login_user, login_manager
+from flask_login import LoginManager, login_user
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
@@ -124,7 +124,7 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Войти')
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login_old', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     url_style = url_for('static', filename='styles/style3.css')
@@ -228,6 +228,17 @@ class DBLoginForm(FlaskForm):
     submit = SubmitField('Войти')
 
 
+class DBJobLoginForm(FlaskForm):
+    team_leader = IntegerField("Team Leader ID", validators=[DataRequired()])
+    job = StringField("Job", validators=[DataRequired()])
+    work_size = IntegerField("Work size (hours per day)", validators=[DataRequired()])
+    collaborators = StringField("Collaborators ID's (divide with comma)", validators=[DataRequired()])
+    end_date = StringField("End date")
+    address = StringField("Address", validators=[DataRequired()])
+    is_finished = BooleanField("Is finished?")
+    submit = SubmitField('Отправить')
+
+
 class SignInForm(FlaskForm):
     email = EmailField('Почта', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
@@ -255,6 +266,27 @@ def register():
     return render_template('login.html', style=url_style,
                            header='<h2>Register form</h2>',
                            title='Авторизация', form=form)
+
+
+@app.route('/add_job', methods=['GET','POST'])
+def register_job():
+    form = DBJobLoginForm()
+    url_style = url_for('static', filename='styles/style3.css')
+    if form.validate_on_submit():
+        job = Jobs()
+        job.team_leader = form.team_leader.data
+        job.job = form.job.data
+        job.work_size = form.work_size.data
+        job.collaborators = form.collaborators.data
+        job.end_date = form.end_date.data
+        job.address = form.address.data
+        job.is_finished = form.is_finished.data
+        db_sess.add(job)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('login.html', style=url_style,
+                           header='<h2>Job registering form</h2>',
+                           title='Добавление работы', form=form)
 
 
 @app.route('/sign_in', methods=['GET', 'POST'])
