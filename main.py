@@ -7,6 +7,7 @@ import os
 import json
 from data import db_session
 from data.__all_models import *
+from data.category import *
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -195,7 +196,7 @@ def works_list():
     d = []
     headers = ['Title of activity', 'Team leader',
                'Duration', 'List of collaborators',
-               'Is finished']
+               'Hazard category', 'Is finished']
     for job in db_sess.query(Jobs).all():
         d.append({i: None for i in headers})
         d[-1][headers[0]] = job.job
@@ -203,10 +204,11 @@ def works_list():
         d[-1][headers[1]] = cap.surname + ' ' + cap.name
         d[-1][headers[2]] = str(job.work_size) + ' hours'
         d[-1][headers[3]] = job.collaborators
+        d[-1][headers[4]] = db_sess.query(Category).filter(job.category == Category.id).first().name
         if job.is_finished:
-            d[-1][headers[4]] = 'Is finished'
+            d[-1][headers[5]] = 'Is finished'
         else:
-            d[-1][headers[4]] = 'Is not finished'
+            d[-1][headers[5]] = 'Is not finished'
         d[-1]["team_leader"] = job.team_leader
         d[-1]["id"] = job.id
     style = url_for('static', filename='/styles/style3.css')
@@ -516,6 +518,7 @@ def db_main():
     work_sizes = [15, 15, 25]
     collaborators_lists = ["1, 3", "4, 3", "5"]
     finished_list = [False, False, False]
+    cats = ['1', '3', '2']
     jobs_amount = 3
     for i in range(jobs_amount):
         job = Jobs()
@@ -523,16 +526,16 @@ def db_main():
         job.job = jobs[i]
         job.work_size = work_sizes[i]
         job.collaborators = collaborators_lists[i]
-        #job.data is default (now)
+        # job.data is default (now)
         job.is_finished = finished_list[i]
+        job.category = cats[i]
         db_sess.add(job)
-    ##### ADD DEPARTMENTS
+    # ADD DEPARTMENTS
     titles = ["Department_1", "Department_2", "Deppppp_3", "dep4"]
     chiefs = [1, 1, 5, 5]
     members = ["1, 2, 3", "1, 4, 5", "4, 5", "2, 3, 5"]
     emails = ["dep1@mars.org", "dep2@mars.org", "depIII@mars.org", "dep4mars.org"]
     dep_amount = 4
-    dep = None
     for i in range(dep_amount):
         dep = Department()
         dep.title = titles[i]
@@ -540,6 +543,13 @@ def db_main():
         dep.members = members[i]
         dep.email = emails[i]
         db_sess.add(dep)
+    # ADD CATEGORIES
+    names = ['first', 'second', 'third']
+    cat_amount = 3
+    for i in range(cat_amount):
+        cat = Category()
+        cat.name = names[i]
+        db_sess.add(cat)
     db_sess.commit()
 
 

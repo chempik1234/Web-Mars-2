@@ -1,5 +1,7 @@
 import datetime
 import sqlalchemy
+from . import category
+from sqlalchemy import orm
 from sqlalchemy import ForeignKeyConstraint
 from .db_session import SqlAlchemyBase
 from flask_login import UserMixin
@@ -27,7 +29,6 @@ class User(SqlAlchemyBase, UserMixin):
 
 class Jobs(SqlAlchemyBase):
     __tablename__ = 'jobs'
-
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
     team_leader = sqlalchemy.Column(sqlalchemy.Integer)
@@ -38,6 +39,10 @@ class Jobs(SqlAlchemyBase):
     end_date = sqlalchemy.Column(sqlalchemy.String)
     address = sqlalchemy.Column(sqlalchemy.String)
     is_finished = sqlalchemy.Column(sqlalchemy.Boolean)
+    categories = orm.relation("Category",
+                              secondary="association",
+                              backref="jobs")
+    category = sqlalchemy.Column(sqlalchemy.Integer)
 
 
 class Department(SqlAlchemyBase):
