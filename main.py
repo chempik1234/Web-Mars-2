@@ -9,73 +9,20 @@ import json
 from data import db_session
 from data.__all_models import *
 from data.category import *
+from data.api import blueprint
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from sqlalchemy_serializer import *
+import requests
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
 levels = {}
-import requests
-
-
-blueprint = flask.Blueprint(
-    'news_api',
-    __name__,
-    template_folder='templates'
-)
-
-
-@blueprint.route('/api/jobs', methods=['GET'])
-def get_jobs():
-    jobs = db_sess.query(Jobs).all()
-    return flask.jsonify({'jobs': [item.to_dict(
-        only=('id', 'job', 'team_leader', 'work_size', 'collaborators',
-              'start_date', 'end_date', 'is_finished', 'category')
-    )
-        for item in jobs]})
-
-
-@blueprint.route('/api/jobs', methods=['POST'])
-def add_job():
-    if not request.json:
-        return flask.jsonify({'error': 'Empty request'})
-    elif not all(key in request.json for key in
-                 ['title', 'content', 'user_id', 'is_private', 'is_published']):
-        return flask.jsonify({'error': 'Bad request'})
-    jobs = Jobs(
-        team_leader=request.json['team_leader'],
-        job=request.json['job'],
-        collaborators=request.json['collaborators'],
-        start_date=request.json['start_date'],
-        end_date=request.json['end_date'],
-        address=request.json['address'],
-        is_finished=request.json['is_finished'],
-        category=request.json['category']
-    )
-    db_sess.add(jobs)
-    db_sess.commit()
-    return flask.jsonify({'success': 'OK'})
-
-
-@blueprint.route('/api/jobs/<int:job_id>', methods=['GET'])
-def get_jobs(job_id):
-    jobs = db_sess.query(Jobs).filter(Jobs.id == job_id).first()
-    if not jobs:
-        return flask.jsonify({'error': 'Not found'})
-    return flask.jsonify(
-        {
-            'jobs': jobs.to_dict(only=(
-                'id', 'job', 'team_leader', 'work_size', 'collaborators',
-                'start_date', 'end_date', 'is_finished', 'category')
-            )
-        }
-    )
 
 
 @app.errorhandler(404)
 def not_found(error):
-    return make_response(flask.jsonify({'error': 'Not found'}), 404)
+    return make_response(flask.jsonify({'error': '404'}), 404)
 
 
 @app.route('/<title>')
@@ -255,8 +202,9 @@ def random_member():
 @app.route('/works')
 @app.route('/')
 def works_list():
-    print(requests.get('http://127.0.0.1:8080/api/jobs/1').json())
     d = []
+    print(requests.put('http://localhost:8080/api/jobs_edit/', json={'id': 1,
+                                                                     'job': 'aaa'}).json())
     headers = ['Title of activity', 'Team leader',
                'Duration', 'List of collaborators',
                'Hazard category', 'Is finished']
@@ -267,7 +215,11 @@ def works_list():
         d[-1][headers[1]] = cap.surname + ' ' + cap.name
         d[-1][headers[2]] = str(job.work_size) + ' hours'
         d[-1][headers[3]] = job.collaborators
-        d[-1][headers[4]] = db_sess.query(Category).filter(job.category == Category.id).first().name
+        category = db_sess.query(Category).filter(job.category == Category.id).first()
+        if category:
+            d[-1][headers[4]] = category.name
+        else:
+            d[-1][headers[4]] = 'NO CATEGORY'
         if job.is_finished:
             d[-1][headers[5]] = 'Is finished'
         else:
@@ -622,6 +574,7 @@ def load_user(user_id):
 
 
 if __name__ == '__main__':
+    app.register_blueprint(blueprint)
     PATH = os.path.abspath(os.getcwd())
     needtofill = os.path.isfile(PATH + '\\db\\mars_explorer.db')
     db_session.global_init("db/mars_explorer.db")
