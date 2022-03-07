@@ -1,13 +1,13 @@
 import datetime
 import sqlalchemy
 from . import category
-from sqlalchemy import orm
-from sqlalchemy import ForeignKeyConstraint
+from sqlalchemy import orm, ForeignKeyConstraint
+from sqlalchemy_serializer import *
 from .db_session import SqlAlchemyBase
 from flask_login import UserMixin
 
 
-class User(SqlAlchemyBase, UserMixin):
+class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     __tablename__ = 'users'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
@@ -27,7 +27,7 @@ class User(SqlAlchemyBase, UserMixin):
         return password == self.hashed_password
 
 
-class Jobs(SqlAlchemyBase):
+class Jobs(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'jobs'
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
@@ -45,7 +45,7 @@ class Jobs(SqlAlchemyBase):
     category = sqlalchemy.Column(sqlalchemy.Integer)
 
 
-class Department(SqlAlchemyBase):
+class Department(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'departments'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
