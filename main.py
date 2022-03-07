@@ -203,8 +203,6 @@ def random_member():
 @app.route('/')
 def works_list():
     d = []
-    print(requests.put('http://localhost:8080/api/jobs_edit/', json={'id': 1,
-                                                                     'job': 'aaa'}).json())
     headers = ['Title of activity', 'Team leader',
                'Duration', 'List of collaborators',
                'Hazard category', 'Is finished']
