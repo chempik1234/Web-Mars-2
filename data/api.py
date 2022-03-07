@@ -196,7 +196,7 @@ def edit_users():
         return flask.jsonify({'error': 'Empty request'})
     elif 'id' not in request.json or not all(key in keyss for key in request.json):
         return flask.jsonify({'error': 'Bad request'})
-    elif not db_sess.query(Jobs).filter(Jobs.id == request.json['id']).first():
+    elif not db_sess.query(User).filter(User.id == request.json['id']).first():
         return flask.jsonify({'error': 'Id does not exist'})
     user = User(
         id=request.json['id'],
