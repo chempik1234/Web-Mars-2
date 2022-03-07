@@ -22,6 +22,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     hashed_password = sqlalchemy.Column(sqlalchemy.String)
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                       default=datetime.datetime.now)
+    city_from = sqlalchemy.Column(sqlalchemy.String, nullable=False)
 
     def check_password(self, password):
         return password == self.hashed_password

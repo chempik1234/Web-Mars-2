@@ -471,6 +471,52 @@ def delete_department(id_):
                            title='Удаление отделения')
 
 
+def get_size(address):
+    search_api_server = "https://search-maps.yandex.ru/v1/"
+    api_key = "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3"
+    search_params = {"apikey": api_key, "lang": "ru_RU", "text": address}
+    response = requests.get(search_api_server, params=search_params)
+    json_response = response.json()
+    organization = json_response["features"][0]["properties"]
+    toponym_lc, toponym_uc = organization["boundedBy"]
+    toponym_size = max(abs(toponym_lc[0] - toponym_uc[0]),
+                       abs(toponym_lc[1] - toponym_uc[1]))
+    return str(toponym_size)
+
+
+@app.route('/users_show/<int:user_id>')
+def users_show(user_id):
+    if not db_sess.query(User).get(user_id):
+        return flask.jsonify({'error': 'No such user'})
+    url_style = url_for('static', filename='styles/style3.css')
+    user = db_sess.query(User).get(user_id)
+    surname, name = user.surname, user.name
+    town = user.city_from
+    image_src = None
+    geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
+    geocoder_params = {
+        "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+        "geocode": town,
+        "format": "json"}
+    response = requests.get(geocoder_api_server, params=geocoder_params)
+    if response:
+        json_response = response.json()
+        toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+        toponym_coodrinates = toponym["Point"]["pos"]
+        map_params = {
+            "ll": toponym_coodrinates.replace(' ', ','),
+            "spn": ','.join([get_size(town) for _ in range(2)]),
+            "l": "sat"
+        }
+        map_api_server = "http://static-maps.yandex.ru/1.x/"
+        response = requests.get(map_api_server, params=map_params)
+        if response:
+            image_src = response.url
+    return render_template('users_show.html', title='Hometown',
+                           style=url_style, surname=surname,
+                           name=name, town=town, image_src=image_src)
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def sign_in():
     form = SignInForm()
@@ -512,6 +558,7 @@ def db_main():
     emails = ["scott_chief@mars.org", "michael_singer@mars.org", "foreigner_guy@mars.org",
               "arma_III@mars.org", "stereotypical_name@mars.org", "science4life@mars.org"]
     passwords = ['1', '2', '3', '4', '5', '6']
+    cities = ['New York', 'Gary, Indiana', 'Tokyo', 'Rome', 'Cape Town', 'Oslo']
     for i in range(people_amount):
         user = User()
         user.surname = surnames[i]
@@ -522,6 +569,7 @@ def db_main():
         user.address = addresses[i]
         user.email = emails[i]
         user.hashed_password = passwords[i]
+        user.city_from = cities[i]
         db_sess.add(user)
     # ADD JOB
     leaders = [1, 3, 4]
