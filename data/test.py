@@ -8,11 +8,6 @@ if __name__ == '__main__':
     print(get('http://localhost:8080/api/jobs/-1').json())
     print(get('http://localhost:8080/api/jobs/abc').json())
 
-    print(get('http://localhost:8080/api/v2/users').json())
-    print(get('http://localhost:8080/api/v2/users/1').json())
-    print(get('http://localhost:8080/api/v2/users/999').json())
-    print(get('http://localhost:8080/api/v2/users/not_int').json())
-
     params = {
         "id": 4,
         "job": "a",
@@ -74,6 +69,11 @@ if __name__ == '__main__':
     print(put('http://localhost:8080/api/jobs_edit/').json())  # BRUH
     print(get('http://localhost:8080/api/jobs/').json())
 
+    print(get('http://localhost:8080/api/v2/users').json())
+    print(get('http://localhost:8080/api/v2/users/1').json())
+    print(get('http://localhost:8080/api/v2/users/999').json())
+    print(get('http://localhost:8080/api/v2/users/not_int').json())
+
     print(post('http://localhost:8080/api/v2/users').json())
     print(post('http://localhost:8080/api/v2/users', json={'name': 'Alisa'}).json())
     print(post('http://localhost:8080/api/v2/users',
@@ -83,9 +83,14 @@ if __name__ == '__main__':
                      'hashed_password': 'selezen',
                      'email': 'alisa@mars.org'}).json())
 
-    print(delete('http://localhost:8080/api/v2/jobs/1').json())
-    print(delete('http://localhost:8080/api/v2/jobs/999').json())
-    print(delete('http://localhost:8080/api/v2/jobs/a').json())
+    print(delete('http://localhost:8080/api/v2/users/1').json())
+    print(delete('http://localhost:8080/api/v2/users/999').json())
+    print(delete('http://localhost:8080/api/v2/users/a').json())
+
+    print(get('http://localhost:8080/api/v2/jobs').json())
+    print(get('http://localhost:8080/api/v2/jobs/1').json())
+    print(get('http://localhost:8080/api/v2/jobs/999').json())
+    print(get('http://localhost:8080/api/v2/jobs/not_int').json())
 
     print(post('http://localhost:8080/api/v2/jobs').json())
     print(post('http://localhost:8080/api/v2/jobs', json={'team_leader': 1}).json())
