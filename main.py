@@ -8,12 +8,19 @@ import os
 import json
 from data import db_session
 from data.__all_models import *
+from flask_restful import Resource, abort
+from werkzeug.security import generate_password_hash
 from data.category import *
 from data.api import blueprint
+from data.reqparse_user import *
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from sqlalchemy_serializer import *
 import requests
+from flask_restful import reqparse, abort, Api, Resource
 app = Flask(__name__)
+api = Api(app)
+api.add_resource(UserListResource, '/api/v2/users')
+api.add_resource(UserListResource, '/api/v2/users/<int:user_id>')
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
