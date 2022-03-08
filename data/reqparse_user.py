@@ -71,3 +71,5 @@ class UserListResource(Resource):
         session.add(user)
         session.commit()
         return jsonify({'success': 'OK'})
+
+

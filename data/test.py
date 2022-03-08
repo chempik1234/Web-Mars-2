@@ -74,15 +74,32 @@ if __name__ == '__main__':
     print(put('http://localhost:8080/api/jobs_edit/').json())  # BRUH
     print(get('http://localhost:8080/api/jobs/').json())
 
-    print(post('http://localhost:5000/api/v2/users').json())
-    print(post('http://localhost:5000/api/v2/users', json={'name': 'Alisa'}).json())
-    print(post('http://localhost:5000/api/v2/users',
+    print(post('http://localhost:8080/api/v2/users').json())
+    print(post('http://localhost:8080/api/v2/users', json={'name': 'Alisa'}).json())
+    print(post('http://localhost:8080/api/v2/users',
                json={'name': 'Alisa', 'position': 'junior biologist',
                      'surname': 'Selezneva', 'age': 15, 'address': 'module_7',
                      'speciality': 'biology',
                      'hashed_password': 'selezen',
                      'email': 'alisa@mars.org'}).json())
 
-    print(delete('http://localhost:5000/api/v2/users/1').json())
-    print(delete('http://localhost:5000/api/v2/users/999').json())
-    print(delete('http://localhost:5000/api/v2/users/a').json())
+    print(delete('http://localhost:8080/api/v2/jobs/1').json())
+    print(delete('http://localhost:8080/api/v2/jobs/999').json())
+    print(delete('http://localhost:8080/api/v2/jobs/a').json())
+
+    print(post('http://localhost:8080/api/v2/jobs').json())
+    print(post('http://localhost:8080/api/v2/jobs', json={'team_leader': 1}).json())
+    print(post('http://localhost:8080/api/v2/jobs',
+               json={'team_leader': 1,
+                     'job': 'sitting menacingly epic',
+                     'work_size': 4,
+                     'collaborators': "1",
+                     'start_date': str(datetime.datetime.now()),
+                     'end_date': str(datetime.datetime.now()),
+                     'address': "office",
+                     'is_finished': False,
+                     'category': 3}).json())
+
+    print(delete('http://localhost:8080/api/v2/jobs/1').json())
+    print(delete('http://localhost:8080/api/v2/jobs/999').json())
+    print(delete('http://localhost:8080/api/v2/jobs/a').json())
